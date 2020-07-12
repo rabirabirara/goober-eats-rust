@@ -22,7 +22,7 @@ impl<'a> DeliveryPlanner<'a> {
     ) -> Result<(Vec<DeliveryCommand>, f64), RouteError> {
         let mut commands = Vec::<DeliveryCommand>::new();
 
-        let optimizer = DeliveryOptimizer::new(deliveries.clone()/*self.street_map, &self.point_router*/);
+        let optimizer = DeliveryOptimizer::new(/*self.street_map, &self.point_router*/);
         let (new_deliveries, _new_crow) = optimizer.optimize_order(&depot, deliveries);
 
         let mut current = depot.clone();
