@@ -1,6 +1,5 @@
 use crate::provided::*;
 use fastrand;
-use std::collections::HashMap;
 
 trait SimulatedAnnealing {
     type BaseNode;
@@ -8,27 +7,13 @@ trait SimulatedAnnealing {
 
     fn simulated_annealing(
         depot: &Self::BaseNode,
-        deliveries: Vec<Self::VisitNode>,
+        deliveries: &Vec<Self::VisitNode>,
     ) -> (Vec<Self::VisitNode>, f64);
-
     fn iterate(
         depot: &Self::BaseNode,
-        deliveries: &Vec<usize>,
-        map: &HashMap<usize, Self::VisitNode>,
-    ) -> (Vec<usize>, f64);
-
-    fn permute(deliveries: &mut Vec<usize>) -> Vec<usize>;
-    
-    fn reconstruct(
-        order: Vec<usize>,
-        map: &HashMap<usize, Self::VisitNode>,
-    ) -> Vec<Self::VisitNode>;
-    
-    fn crow_cost_indices(
-        depot: &Self::BaseNode,
-        deliveries: &Vec<usize>,
-        map: &HashMap<usize, Self::VisitNode>,
-    ) -> f64;
+        deliveries: &Vec<Self::VisitNode>,
+    ) -> (Vec<Self::VisitNode>, f64);
+    fn permute(deliveries: &mut Vec<Self::VisitNode>) -> Vec<Self::VisitNode>;
 }
 
 trait StemCycle {
@@ -46,7 +31,7 @@ impl DeliveryOptimizer {
         depot: &GeoCoord,
         deliveries: Vec<DeliveryRequest>,
     ) -> (Vec<DeliveryRequest>, f64) {
-        Self::simulated_annealing(depot, deliveries)
+        Self::simulated_annealing(depot, &deliveries)
     }
     // * Calculating the real cost of a route, with the point_router, is expensive.  Add the functionality in if desired.
     fn crow_cost(depot: &GeoCoord, deliveries: &Vec<DeliveryRequest>) -> f64 {
@@ -56,7 +41,7 @@ impl DeliveryOptimizer {
             crow_distance += distance_earth_miles(current, &delivery.location);
             current = &delivery.location;
         }
-        crow_distance += distance_earth_miles(current, depot);
+		crow_distance += distance_earth_miles(current, depot);
         crow_distance
     }
 }
@@ -67,36 +52,25 @@ impl SimulatedAnnealing for DeliveryOptimizer {
 
     fn simulated_annealing(
         depot: &GeoCoord,
-        deliveries: Vec<DeliveryRequest>,
+        deliveries: &Vec<DeliveryRequest>,
     ) -> (Vec<DeliveryRequest>, f64) {
-        let tour = (0..deliveries.len()).collect::<Vec<usize>>();
-        let mut map = HashMap::new();
-        for (i, city) in deliveries.into_iter().enumerate() {
-            map.insert(i, city);
-        }
-
         // TODO: Implement multi-threading on this, so that we can take the best of a few runs.
-        let (mut best_tour, mut best_cost) = Self::iterate(depot, &tour, &map);
+        let (mut best_tour, mut best_cost) = Self::iterate(depot, &deliveries);
         for _ in 0..100 {
-            let (new_tour, new_cost) = Self::iterate(depot, &best_tour, &map);
+            let (new_tour, new_cost) = Self::iterate(depot, &best_tour);
             if new_cost < best_cost {
                 best_tour = new_tour;
                 best_cost = new_cost;
             }
         }
-        let best_tour = Self::reconstruct(best_tour, &map);
         (best_tour, best_cost)
     }
-    fn iterate(
-        depot: &GeoCoord,
-        deliveries: &Vec<usize>,
-        map: &HashMap<usize, DeliveryRequest>,
-    ) -> (Vec<usize>, f64) {
+    fn iterate(depot: &GeoCoord, deliveries: &Vec<DeliveryRequest>) -> (Vec<DeliveryRequest>, f64) {
         let mut no_improvements = 0;
         let size = deliveries.len();
 
         let mut current_path = deliveries.clone();
-        let mut current_cost = Self::crow_cost_indices(depot, &current_path, map);
+        let mut current_cost = Self::crow_cost(depot, &current_path);
         let mut best_tour = deliveries.clone();
         let mut best_cost = f64::MAX;
 
@@ -113,7 +87,7 @@ impl SimulatedAnnealing for DeliveryOptimizer {
 
         while no_improvements < limit {
             let new_path = Self::permute(&mut current_path);
-            let new_cost = Self::crow_cost_indices(depot, &new_path, map);
+            let new_cost = Self::crow_cost(depot, &new_path);
             if new_cost < current_cost {
                 current_path = new_path.clone();
                 current_cost = new_cost;
@@ -133,7 +107,7 @@ impl SimulatedAnnealing for DeliveryOptimizer {
         }
         (best_tour, best_cost)
     }
-    fn permute(deliveries: &mut Vec<usize>) -> Vec<usize> {
+    fn permute(deliveries: &mut Vec<DeliveryRequest>) -> Vec<DeliveryRequest> {
         let delivery_count = deliveries.len();
         if delivery_count == 1 {
             return deliveries.clone();
@@ -147,22 +121,5 @@ impl SimulatedAnnealing for DeliveryOptimizer {
         deliveries.swap(rand1, rand2);
         // ! Check if this actually permutes anything.
         deliveries.clone()
-    }
-    fn reconstruct(
-        order: Vec<usize>,
-        map: &HashMap<usize, DeliveryRequest>,
-    ) -> Vec<DeliveryRequest> {
-        let mut tour = Vec::new();
-        for city in order {
-            tour.push(map[&city].clone());
-        }
-        tour
-    }
-    fn crow_cost_indices(
-        depot: &GeoCoord,
-        deliveries: &Vec<usize>,
-        map: &HashMap<usize, DeliveryRequest>,
-    ) -> f64 {
-        Self::crow_cost(depot, &Self::reconstruct(deliveries.clone(), map))
     }
 }
