@@ -2,6 +2,9 @@ use crate::provided::*;
 use fastrand;
 
 trait SimulatedAnnealing {
+    // ? Look into making this more efficient with Vec<usize> instead of Vec<DeliveryRequest>.
+    // ? This was attempted, but one error failed the build (trait not impl'd for &T).
+    // ? Look in the commit history.  A building attempt, later, turned out slow.
     type BaseNode;
     type VisitNode;
 
