@@ -48,7 +48,7 @@ the program must sometimes make two comparisons.  In Rust, if this is the inner 
 I am not the least interested in producing any.  Compiling Rust binaries is so bloody easy.  Cargo is a gift.  It is the superior of all three of Haskell's attempts to have a good
 package/dependency manager.  It is pretty much the only thing Rust programmers use, unless they need some differing sort of functionality.
 
-C++ is not so simple.  You could build with gcc, on the command line, and (barf) link everything together... you colud (barf) write a makefile... you could (barf) use Visual Studio,
+C++ is not so simple.  You could build with gcc, on the command line, and (barf) link everything together... you could (barf) write a makefile... you could (barf) use Visual Studio,
 deal with MSVC, and deal with all that weird solution nonsense, and cryptic bugs...
 
 And benchmarking it?  Just as troublesome.  I can't even be arsed to write Rust benchmarks.  In general use, with around 15 deliveries, Rust is faster and takes about a second to run the 
