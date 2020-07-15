@@ -63,8 +63,7 @@ impl Ord for GeoCoord {
     fn cmp(&self, other: &Self) -> Ordering {
         match self.lat_text.cmp(&other.lat_text) {
             Ordering::Equal => self.lon_text.cmp(&other.lon_text),
-            Ordering::Less => Ordering::Less,
-            Ordering::Greater => Ordering::Greater,
+            order => order,
         }
     }
 }

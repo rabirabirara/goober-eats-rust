@@ -122,7 +122,6 @@ impl SimulatedAnnealing for DeliveryOptimizer {
             rand2 = rng.usize(..delivery_count);
         }
         deliveries.swap(rand1, rand2);
-        // ! Check if this actually permutes anything.
         deliveries.clone()
     }
 }
