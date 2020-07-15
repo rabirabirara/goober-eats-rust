@@ -1,3 +1,4 @@
 /target
-*.cpp
-*.h
+/reference
+Graph.cpp
+Graph.h
