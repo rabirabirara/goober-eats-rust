@@ -136,12 +136,6 @@ Rc<RefCell<T>> is a bad idea, and generally only used to force - essentially, GC
 in which I would need to destroy nodes too; I couldn't just keep creating references, cloning them without a care in the world, and being fine with that.  (Though I think there is
 still potential to this, and I plan to investigate it further.)
 
-So I decided to abandon Rust entirely, and write in C.  Wow!  Good 'ol reliable.
+So I decided to abandon Rust entirely, and <strike>write in C</strike> write it in Rust, actually.  I can't believe I wrote that for a second.
 
-Not C++, because I despise C++; I only ever want to get paid writing C++.  Even despite the fact that the two-level-tree implementation I found was written in C++.  Nope!  I'm rewriting it in C.
-
-Why?  Because C is very easy to compile to other languages - Zig and V, for example - and especially Rust, the language I'll need to work with.  Well, Rust only has FFI/bindings, so it
-doesn't support C as natively as these other languages, but I've decided on making this work if I can.  I'll import my C library to my Rust project and hopefully write a S&C optimizer
-in any good amount of time.
-
-
+I'm going to use an arena and charge through with it.  Anything is better than writing a custom growable vector type in C... well, depends.
