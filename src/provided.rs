@@ -106,34 +106,6 @@ impl PartialEq for StreetSegment {
 
 impl Eq for StreetSegment {}
 
-// class PointToPointRouterImpl;
-
-// class PointToPointRouter
-// {
-// public:
-//     PointToPointRouter(const StreetMap* sm);
-//     ~PointToPointRouter();
-//     DeliveryResult generatePointToPointRoute(
-//         const GeoCoord& start,
-//         const GeoCoord& end,
-//         std::list<StreetSegment>& route,
-//         double& totalDistanceTravelled) const;
-//       // We prevent a PointToPointRouter object from being copied or assigned.
-//     PointToPointRouter(const PointToPointRouter&) = delete;
-//     PointToPointRouter& operator=(const PointToPointRouter&) = delete;
-// private:
-//     PointToPointRouterImpl* m_impl;
-// };
-
-// struct DeliveryRequest
-// {
-//     DeliveryRequest(std::string it, const GeoCoord& loc)
-//      : item(it), location(loc)
-//     {}
-//     std::string item;
-//     GeoCoord location;
-// };
-
 #[derive(Clone, Debug)]
 pub struct DeliveryRequest {
     pub item: String,

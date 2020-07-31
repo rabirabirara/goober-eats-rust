@@ -1,4 +1,5 @@
 use crate::provided::*;
+// use std::thread;
 use fastrand;
 
 trait SimulatedAnnealing {
@@ -16,7 +17,7 @@ trait SimulatedAnnealing {
         depot: &Self::BaseNode,
         deliveries: &Vec<Self::VisitNode>,
     ) -> (Vec<Self::VisitNode>, f64);
-    fn permute(deliveries: &mut Vec<Self::VisitNode>) -> Vec<Self::VisitNode>;
+    fn permute(deliveries: Vec<Self::VisitNode>) -> Vec<Self::VisitNode>;
 }
 
 trait StemCycle {
@@ -58,7 +59,8 @@ impl SimulatedAnnealing for DeliveryOptimizer {
         deliveries: &Vec<DeliveryRequest>,
     ) -> (Vec<DeliveryRequest>, f64) {
         // TODO: Implement multi-threading on this, so that we can take the best of a few runs.
-        let (mut best_tour, mut best_cost) = Self::iterate(depot, &deliveries);
+        // ? Will need Arc<Mutex<T>>.
+        let (mut best_tour, mut best_cost) = Self::iterate(depot, deliveries);
         for _ in 0..100 {
             let (new_tour, new_cost) = Self::iterate(depot, &best_tour);
             if new_cost < best_cost {
@@ -89,14 +91,14 @@ impl SimulatedAnnealing for DeliveryOptimizer {
         let rng = fastrand::Rng::new();
 
         while no_improvements < limit {
-            let new_path = Self::permute(&mut current_path);
+            let new_path = Self::permute(current_path.clone());
             let new_cost = Self::crow_cost(depot, &new_path);
             if new_cost < current_cost {
-                current_path = new_path.clone();
+                current_path = new_path;
                 current_cost = new_cost;
                 if new_cost < best_cost {
                     best_cost = new_cost;
-                    best_tour = new_path;
+                    best_tour = current_path.clone();
                     no_improvements = 0;
                 }
             } else {
@@ -110,7 +112,7 @@ impl SimulatedAnnealing for DeliveryOptimizer {
         }
         (best_tour, best_cost)
     }
-    fn permute(deliveries: &mut Vec<DeliveryRequest>) -> Vec<DeliveryRequest> {
+    fn permute(mut deliveries: Vec<DeliveryRequest>) -> Vec<DeliveryRequest> {
         let delivery_count = deliveries.len();
         if delivery_count == 1 {
             return deliveries.clone();
@@ -122,6 +124,6 @@ impl SimulatedAnnealing for DeliveryOptimizer {
             rand2 = rng.usize(..delivery_count);
         }
         deliveries.swap(rand1, rand2);
-        deliveries.clone()
+        deliveries
     }
 }
