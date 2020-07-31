@@ -54,19 +54,19 @@ the program must sometimes make two comparisons.  In Rust, if this is the inner 
 I downloaded hyperfine, which makes everything easy.  I feel sad for developers who were born earlier than me, to not have all these great tools ready for them.  I can say
 nothing except that I was lucky enough to not have to work with the arcane stuff people wrote back then.  An easy benchmark, from powershell:
 
-<code>
+```
 PS D:\rupo\goober_eats\target\release> hyperfine ".\goober_eats.exe ../../mapdata.txt ../../deliveries.txt"
 Benchmark #1: .\goober_eats.exe ../../mapdata.txt ../../deliveries.txt                 0
   Time (mean ± σ):     810.2 ms ±  96.7 ms    [User: 2.4 ms, System: 7.2 ms]           1
   Range (min … max):   718.5 ms … 1003.8 ms    10 runs
-</code>
+```
 
-<code
+```
 PS D:\cs\32\Project_4\Project4> hyperfine ".\goobereatscpp.exe mapdata.txt deliveries.txt"
 Benchmark #1: .\goobereatscpp.exe mapdata.txt deliveries.txt                                                                                                                               
   Time (mean ± σ):     908.1 ms ±  84.2 ms    [User: 1.2 ms, System: 7.3 ms]                                                                                                               
   Range (min … max):   835.1 ms … 1094.5 ms    10 runs
-</code>
+```
 
 Rust was compiled with --release; C++ was compiled with clang at 03.  I realize gcc is faster in general, but when I tried it with gcc, I was assaulted with a slew of errors likely related to some difference between something designed for linux and something designed on windows... gcc vs. msvc... etc.  I won't investigate that further for now.  It makes sense in a way to use clang, so that both rustc and clang are hosted on the LLVM.
 
@@ -78,12 +78,12 @@ Overall, I have no doubt that I implemented this "genetic algorithm" incorrectly
 
 EDIT: Made Rust slightly faster by removing one pointless Vec clone.
 
-<code>
+```
 PS D:\rupo\goober_eats\target\release> hyperfine ".\goober_eats.exe ../../mapdata.txt ../../deliveries.txt"
 Benchmark #1: .\goober_eats.exe ../../mapdata.txt ../../deliveries.txt                                                                                                     
   Time (mean ± σ):     763.9 ms ±  60.1 ms    [User: 0.0 ms, System: 6.4 ms]                                                                                                              
   Range (min … max):   702.3 ms … 894.1 ms    10 runs
-</code>
+```
 
 Again, this is just me being bored; don't take this seriously.  I don't have any interest in improving the C++ version because working with C++ is horrible unless you're getting paid or rewarded in some way.  (In which case it becomes fun again!)
 
