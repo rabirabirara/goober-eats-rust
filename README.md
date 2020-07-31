@@ -51,14 +51,41 @@ the program must sometimes make two comparisons.  In Rust, if this is the inner 
 
 ## Performance benchmarks?
 
-I am not the least interested in producing any.  Compiling Rust binaries is so bloody easy.  Cargo is a gift.  It is the superior of all three of Haskell's attempts to have a good
-package/dependency manager.  It is pretty much the only thing Rust programmers use, unless they need some differing sort of functionality.
+I downloaded hyperfine, which makes everything easy.  I feel sad for developers who were born earlier than me, to not have all these great tools ready for them.  I can say
+nothing except that I was lucky enough to not have to work with the arcane stuff people wrote back then.  An easy benchmark, from powershell:
 
-C++ is not so simple.  You could build with gcc, on the command line, and (barf) link everything together... you could (barf) write a makefile... you could (barf) use Visual Studio,
-deal with MSVC, and deal with all that weird solution nonsense, and cryptic bugs...
+<code>
+PS D:\rupo\goober_eats\target\release> hyperfine ".\goober_eats.exe ../../mapdata.txt ../../deliveries.txt"
+Benchmark #1: .\goober_eats.exe ../../mapdata.txt ../../deliveries.txt                 0
+  Time (mean ± σ):     810.2 ms ±  96.7 ms    [User: 2.4 ms, System: 7.2 ms]           1
+  Range (min … max):   718.5 ms … 1003.8 ms    10 runs
+</code>
 
-And benchmarking it?  Just as troublesome.  I can't even be arsed to write Rust benchmarks.  In general use, with around 15 deliveries, Rust is faster and takes about a second to run the 
-50,000 or so iterations of the optimizer functions.
+<code
+PS D:\cs\32\Project_4\Project4> hyperfine ".\goobereatscpp.exe mapdata.txt deliveries.txt"
+Benchmark #1: .\goobereatscpp.exe mapdata.txt deliveries.txt                                                                                                                               
+  Time (mean ± σ):     908.1 ms ±  84.2 ms    [User: 1.2 ms, System: 7.3 ms]                                                                                                               
+  Range (min … max):   835.1 ms … 1094.5 ms    10 runs
+</code>
+
+Rust was compiled with --release; C++ was compiled with clang at 03.  I realize gcc is faster in general, but when I tried it with gcc, I was assaulted with a slew of errors likely related to some difference between something designed for linux and something designed on windows... gcc vs. msvc... etc.  I won't investigate that further for now.  It makes sense in a way to use clang, so that both rustc and clang are hosted on the LLVM.
+
+Rust was actually at a disadvantage, technically; I had set it up to run 1000 iterations 100 times, making for 100,000 iterations in total; for C++ I set it to run plainly 50,000 times.  However, something curious took place, which illustrates to me the importance of testing your programs before you make bold claims about them.  My Rust implementation was
+likely incorrect: my C++ implementation would optimize a 7.04 mile route down to 4.52 miles every single run, while my Rust implementation was considerably more random, and produced slightly less optimal routes (ranging from 4.5 to 5.2 miles, on average around 4.8).  I looked into the code and also saw that in Rust, I would reduce the temperature much more slowly in my simulated annealing (temp\*0.99), while in C++, I would reduce it very quickly (temp\*0.9).
+Keeping this in mind, I might be arsed to correct these differences later.
+
+Overall, I have no doubt that I implemented this "genetic algorithm" incorrectly.  It's okay; I rather dislike the method anyway.  I hope to design something better in the future.
+
+EDIT: Made Rust slightly faster by removing one pointless Vec clone.
+
+<code>
+PS D:\rupo\goober_eats\target\release> hyperfine ".\goober_eats.exe ../../mapdata.txt ../../deliveries.txt"
+Benchmark #1: .\goober_eats.exe ../../mapdata.txt ../../deliveries.txt                                                                                                     
+  Time (mean ± σ):     763.9 ms ±  60.1 ms    [User: 0.0 ms, System: 6.4 ms]                                                                                                              
+  Range (min … max):   702.3 ms … 894.1 ms    10 runs
+</code>
+
+Again, this is just me being bored; don't take this seriously.  I don't have any interest in improving the C++ version because working with C++ is horrible unless you're getting paid or rewarded in some way.  (In which case it becomes fun again!)
 
 ## Improvements?
 
@@ -75,7 +102,7 @@ I have not implemented any sort of cache to write to a file and remember old tou
   <li>On run, check through file for deliveries set; if found, then recall tour and use that; skip optimization</li>
 </ol>
 
-This is what it would take to implement a tour optimization cache.
+This is what it would take to implement a tour optimization cache.  (Or so I think; I've never done it before.)
 
 Well, to be frank, I would love instead to implement a different algorithm altogether.  I at a point in time considered using some sort of poor approximation algorithm, such as Christofide's
 algorithm (bringing us at least into 3/2 of optimality); but I did not have the time to implement that.  However, if I'm going to be spending time on this algorithm,
