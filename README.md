@@ -51,8 +51,10 @@ the program must sometimes make two comparisons.  In Rust, if this is the inner 
 
 ## Performance benchmarks?
 
+#### Not really.
+
 I downloaded hyperfine, which makes everything easy.  I feel sad for developers who were born earlier than me, to not have all these great tools ready for them.  I can say
-nothing except that I was lucky enough to not have to work with the arcane stuff people wrote back then.  An easy benchmark, from powershell:
+nothing except that I was lucky enough to not have to work with the arcane stuff people wrote back then.  An easy and simplistic benchmark, from powershell:
 
 ```
 PS D:\rupo\goober_eats\target\release> hyperfine ".\goober_eats.exe ../../mapdata.txt ../../deliveries.txt"
@@ -72,9 +74,11 @@ Rust was compiled with --release; C++ was compiled with clang at 03.  I realize 
 
 Rust was actually at a disadvantage, technically; I had set it up to run 1000 iterations 100 times, making for 100,000 iterations in total; for C++ I set it to run plainly 50,000 times.  However, something curious took place, which illustrates to me the importance of testing your programs before you make bold claims about them.  My Rust implementation was
 likely incorrect: my C++ implementation would optimize a 7.04 mile route down to 4.52 miles every single run, while my Rust implementation was considerably more random, and produced slightly less optimal routes (ranging from 4.5 to 5.2 miles, on average around 4.8).  I looked into the code and also saw that in Rust, I would reduce the temperature much more slowly in my simulated annealing (temp\*0.99), while in C++, I would reduce it very quickly (temp\*0.9).
-Keeping this in mind, I might be arsed to correct these differences later.
+Keeping this in mind, I might be moved to correct these differences later.
 
-Overall, I have no doubt that I implemented this "genetic algorithm" incorrectly.  It's okay; I rather dislike the method anyway.  I hope to design something better in the future.
+But overall, I have no doubt that I implemented this "genetic algorithm" incorrectly.  It's okay; I rather dislike the method anyway.  I hope to design something better in the future.  And I have absolutely no doubt in my mind that the C++ is written poorly, so this benchmark is to be taken with a grain of salt.
+
+What I'm more interested in is how much easier it is to write Rust than C++, and how much better I feel in general writing it.  In *that* benchmark, Rust shoots C++ out of the water.
 
 EDIT: Made Rust slightly faster by removing one pointless Vec clone.
 
